@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments :: page_head(${pageTitle},'none')"/>
+<body>
+	<div class="container-fluid">
+		<div th:replace="navigation :: menu"></div>
+		<div>
+			<h2 class="">Manage Users | [[${pageTitle}]]</h2>
+		</div>
+		
+		<form th:action="@{/users/save}" method="post" style="max-width:700px;margin:0 auto;padding:10px;border:bg-dark"
+		enctype="multipart/form-data"
+		th:object="${user}"   onsubmit="return checkEmailUnique(this);">
+		
+			<input type="hidden" th:field="*{id}"/>
+			<div class="border border-secondary rounded p-3">
+			<div class="form-group">
+				<label for="email">Email address</label> <input
+					type="email" class="form-control" th:field="*{email}" required minlength ="8" maxlength="128" id="email"
+					aria-describedby="emailHelp" placeholder="Enter email"> <small
+					id="emailHelp" class="form-text text-muted">We'll never
+					share your email with anyone else.</small> 
+					
+				
+			</div>
+			
+			<div class="form-group">
+				<label for="password">Password</label> <input th:if="${user.id==null}"
+					type="password" class="form-control" th:field="*{password}" required minlength ="8" maxlength="128" 
+					 id="password"
+					placeholder="Enter Password"> <small
+					id="passwordHelp" class="form-text text-muted">
+					
+					<!-- user present ,pass change not required -->
+					<input th:if="${user.id!=null}"
+					type="password" class="form-control" th:field="*{password}" minlength ="8" maxlength="128" 
+					 id="password"
+					placeholder="Enter Password"> 
+					
+			</div>
+			
+			<div class="form-group">
+				<label for="firstName">FirstName</label> <input
+					type="text" class="form-control" th:field="*{firstName}" 
+					required maxlength="128" 
+					 id="firstName"
+					placeholder="Enter FirstName">
+			</div>
+			
+			<div class="form-group">
+				<label for="lastName">LastName</label> <input
+					type="text" class="form-control" th:field="*{lastName}" 
+					required maxlength="128" 
+					 id="lastName"
+					placeholder="Enter LastName">
+			</div>
+			<div class="form-group">
+				<label for="Role">Choose Roles</label>
+
+				<th:block th:each="role:${listRoles}">
+					<input class="form-check" type="checkbox" th:field="*{roles}"
+						th:text="${role.name}"
+						th:value="${role.id}"/>
+				-<small>[[${role.desciption}]]</small>
+				<br/>
+				</th:block>
+				
+				
+			</div>
+			
+			<div class="form-group">
+				<label for="enabled">Enabled</label> &nbsp <input
+					type="checkbox" th:field="*{enabled}" 
+					 id="enabled">
+			</div>
+			
+			<div class="form-group">
+				<label for="photos">Photos</label> &nbsp 
+				<input type="hidden" th:field="*{photos}"/>
+				<input type="file" id="fileImage" name="image" accept="image/png,image/jpeg"
+					class="mb-2"/>
+					<img th:src="@{${user.photosImagePath}}" id="thumbnail" alt="Photos preview" 
+					class="img-fluid" />
+					
+			</div>
+			
+			
+			
+			<div class="text-center">
+				<button input type="submit" class="btn btn-success">Save</button>
+				<button input type="button" class="btn btn-dark" id="buttonCancel">Cancel</button>
+				
+			</div>
+			
+		</form>
+		
+		<div th:replace="modal_fragments :: modal_dialog"></div>
+	</div>
+		
+		<div th:replace="footer :: footer"></div>
+	</div>
+	
+<script type="text/javascript">
+	moduleURL="[[@{/users}]]";
+	MAX_FILE_SIZE =102400;
+	function checkEmailUnique(form)
+	{
+		url = "[[@{/users/check_email}]]";
+		userEmail = $("#email").val();
+		userId = $("#id").val();
+		csrfValue = $("input[name='_csrf']").val();
+		
+		params = {id:userId, email: userEmail, _csrf: csrfValue};
+		
+		
+		$.post(url, params, function(response) {
+			if (response == "OK") {
+				form.submit();
+			} else if (response == "Duplicated") {
+				showModalDialog("Warning","There is another Customer having the email " + userEmail);
+			} else {
+				showModalDialog("Error","Unknown response from server");
+			}
+		}).fail(function() {
+			showModalDialog("Error","Could not connect to the server");
+		});
+		
+		return false;
+	}
+	
+	function showModalDialog(title,message)
+	{
+		$("#modalTitle").text(title);
+		$("#modalBody").text(message);
+		$("#modalDialog").modal();
+	}
+
+</script>
+<script th:src="@{/js/common_form.js}"></script>
+</body>
+
+</html>

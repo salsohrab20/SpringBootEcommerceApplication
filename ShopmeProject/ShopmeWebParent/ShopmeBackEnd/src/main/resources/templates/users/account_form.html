@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments :: page_head(${pageTitle},'none')"/>
+<body>
+	<div class="container-fluid">
+		<div th:replace="navigation :: menu"></div>
+		<div>
+			<h2 class="text-center">[[${pageTitle}]]</h2>
+		</div>
+		
+		<form th:action="@{/account/update}" method="post" style="max-width:700px;margin:0 auto;padding:10px;border:bg-dark"
+		enctype="multipart/form-data"
+		th:object="${user}">
+		<div th:if="${message!=null}" class="alert alert-success text-center">
+			[[${message}]]
+		</div>
+			<input type="hidden" th:field="*{id}"/>
+			<div class="border border-secondary rounded p-3">
+			<div class="form-group">
+				<label for="email">Email address</label> <input
+					type="email" class="form-control" th:field="*{email}" id="email"
+					aria-describedby="emailHelp" placeholder="Enter email"readonly="readonly">
+				
+			</div>
+			
+			<div class="form-group">
+				<label for="password">Password</label> <input th:if="${user.id==null}"
+					type="password" class="form-control" th:field="*{password}"
+					 id="password"> 
+					
+					<!-- user present ,pass change not required -->
+					<input
+					type="password" class="form-control" th:field="*{password}" minlength ="8" maxlength="128" 
+					 id="password"
+					placeholder="Leave blank if you do not want to change password"
+					oninput="checkPasswordMatch(document.getElementbyId('password'))"> 
+					
+			</div>
+			<div class="form-group">
+				<label for="password">Confirm Password</label> <input th:if="${user.id==null}"
+					type="password" class="form-control" th:field="*{password}"
+					 id="password"
+					placeholder="Leave blanlk if you do not want to change password"
+					minlength="8" maxlength="20"/> 
+				<input
+					type="password" class="form-control" th:field="*{password}" minlength ="8" maxlength="128" 
+					 id="password" oninput="checkPasswordMatch(this)"> 
+					
+			</div>
+			
+			<div class="form-group">
+				<label for="firstName">FirstName</label> <input
+					type="text" class="form-control" th:field="*{firstName}" 
+					required maxlength="128" 
+					 id="firstName"
+					placeholder="Enter FirstName">
+			</div>
+			
+			<div class="form-group">
+				<label for="lastName">LastName</label> <input
+					type="text" class="form-control" th:field="*{lastName}" 
+					required maxlength="128" 
+					 id="lastName"
+					placeholder="Enter LastName">
+			</div>
+			<div class="form-group">
+				<label for="Role">Assigned Roles</label>
+				
+					<span><b>&nbsp;&nbsp;&nbsp;&nbsp;[[${user.roles}]]</b></span>
+				
+				
+				
+			</div>
+			
+			
+			<div class="form-group">
+				<label for="photos">Photos</label> &nbsp 
+				<input type="hidden" th:field="*{photos}"/>
+				<input type="file" id="fileImage" name="image" accept="image/png,image/jpeg"
+					class="mb-2"/>
+					<img th:src="@{${user.photosImagePath}}" id="thumbnail" alt="Photos preview" 
+					class="img-fluid" />
+					
+			</div>
+			
+			
+			
+			<div class="text-center">
+				<button input type="submit" class="btn btn-success">Save</button>
+				<button input type="button" class="btn btn-dark ml-2" id="buttonCancel">Cancel</button>
+				
+			</div>
+			
+		</form>
+		
+
+	</div>
+		
+		<div th:replace="footer :: footer"></div>
+	</div>
+	
+<script type="text/javascript">
+	moduleURL="[[@{/users}]]";
+	function checkPasswordMatch(confirmPassword)
+	{
+		if(confirmPassword.value != $("#password").val()){
+			confirmPassword.setCustomValidity("Password do not match!");
+		}
+		else{
+			confirmPassword.setCustomValidity();
+		}
+	}
+
+</script>
+<script th:src="@{/js/common_form.js}"></script>
+</body>
+
+</html>
